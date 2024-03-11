@@ -23,6 +23,12 @@ jobs:
 
       - name: Build docker image
         run: docker-compose build projects_api
+      
+      - name: Run database for tests
+        run: docker-compose up -d db
 
       - name: Check the code
         run: docker-compose run --rm projects_api bash lint.sh
+      
+      - name: Run tests
+        run: docker-compose run --rm projects_api pytest -v

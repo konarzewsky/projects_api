@@ -7,3 +7,6 @@ async def get_db_conn():
         yield db
     finally:
         db.close()
+
+
+# TODO: Add auth token

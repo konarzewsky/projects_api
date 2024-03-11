@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
 from api.dependencies import get_db_conn
-from api.schemas import ProjectIn, ProjectOut
+from api.schemas import BaseProject, Project
 
 app = FastAPI()
 
@@ -12,7 +12,8 @@ async def root():
     return {"message": "Welcome to 'projects' API."}
 
 
-@app.post("/create", response_model=ProjectOut)
-async def add_date(project: ProjectIn, session: Session = Depends(get_db_conn)):
-    # TODO: add input validation
+@app.post("/create")
+async def add_date(
+    project: BaseProject, session: Session = Depends(get_db_conn)
+) -> Project:
     return project.create(session=session)
