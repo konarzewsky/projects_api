@@ -1,0 +1,28 @@
+name: "Build and tests application"
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+
+  build_and_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: CI setup
+        run: cp .env.example .env
+
+      - name: Build docker image
+        run: docker-compose build projects_api
+
+      - name: Check the code
+        run: docker-compose run --rm projects_api bash lint.sh
