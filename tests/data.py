@@ -1,5 +1,7 @@
 import random
 
+N_PROJECTS = 20
+
 
 def generate_position() -> list:
     lon = random.uniform(-180, 180)
@@ -68,7 +70,7 @@ VALID_PROJECTS = [
         "date_end": random.choice(["2024-03-01", "2024-03-05", "2024-03-10"]),
         "area": random.choice(VALID_GEOJSONS),
     }
-    for i in range(20)
+    for i in range(1, N_PROJECTS + 1)
 ]
 
 INVALID_PROJECTS = [

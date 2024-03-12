@@ -55,3 +55,18 @@ class Project(BaseProject):
     id: int
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+    class Config:
+        from_attributes = True
+
+    @staticmethod
+    def get(id: int, session: Session) -> models.Project:
+        logger.info(f"Getting project (id={id})")
+        db_project = (
+            session.query(models.Project).filter(models.Project.id == id).first()
+        )
+        if db_project is None:
+            raise HTTPException(
+                status_code=400, detail=f"Project with id={id} not found"
+            )
+        return db_project
