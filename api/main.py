@@ -25,3 +25,8 @@ async def read_project(project_id: int, session: Session = Depends(get_db_conn))
 @app.get("/projects/list", response_model=list[Project])  # TODO: check return typing
 async def list_projects(session: Session = Depends(get_db_conn)):
     return Project.get_all(session=session)
+
+
+@app.delete("/projects/delete/{project_id}")
+async def delete_project(project_id: int, session: Session = Depends(get_db_conn)):
+    return Project.delete(id=project_id, session=session)

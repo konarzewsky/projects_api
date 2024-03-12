@@ -2,7 +2,7 @@ import datetime
 from typing import Self
 
 from fastapi import HTTPException
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -52,12 +52,10 @@ class BaseProject(BaseModel):
 
 
 class Project(BaseProject):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     created_at: datetime.datetime
     updated_at: datetime.datetime
-
-    class Config:
-        from_attributes = True
 
     @staticmethod
     def get(id: int, session: Session) -> models.Project:
@@ -66,12 +64,25 @@ class Project(BaseProject):
             session.query(models.Project).filter(models.Project.id == id).first()
         )
         if db_project is None:
-            raise HTTPException(
-                status_code=400, detail=f"Project with id={id} not found"
-            )
+            raise HTTPException(status_code=400, detail=f"Project (id={id}) not found")
         return db_project
 
     @staticmethod
     def get_all(session: Session) -> list[models.Project]:
         logger.info("Getting all projects")
         return session.query(models.Project).order_by(models.Project.id).all()
+
+    @staticmethod
+    def delete(id: int, session: Session) -> dict:
+        logger.info(f"Deleting project with id={id}")
+        project = session.get(models.Project, id)
+        if not project:
+            raise HTTPException(status_code=404, detail=f"Project (id={id}) not found")
+        try:
+            session.delete(project)
+            session.commit()
+        except SQLAlchemyError as e:
+            session.rollback()
+            raise HTTPException(status_code=400, detail=e)
+        else:
+            return {"detail": f"Project (id={id}) deleted"}

@@ -32,6 +32,7 @@ def test_root():
 # TODO: add auth token test
 
 
+@pytest.mark.order("first")
 @pytest.mark.parametrize("project", VALID_PROJECTS)
 def test_create_project_valid(project):
     response = client.post("/projects/create", json=project, headers=headers)
@@ -39,6 +40,7 @@ def test_create_project_valid(project):
     assert response.json()["name"] == project["name"]
 
 
+@pytest.mark.order("second")
 def test_save_new_projects(db):
     projects = db.query(models.Project).order_by(models.Project.created_at).all()
     assert len(projects) == N_PROJECTS
@@ -77,7 +79,7 @@ def test_read_existing_project(project_id):
 def test_read_nonexistent_project(project_id):
     response = client.get(f"/projects/read/{project_id}", headers=headers)
     assert response.status_code == 400
-    assert response.json()["detail"] == f"Project with id={project_id} not found"
+    assert response.json()["detail"] == f"Project (id={project_id}) not found"
 
 
 def test_list_projects(db):
@@ -88,3 +90,12 @@ def test_list_projects(db):
     assert response.status_code == 200
     assert len(response.json()) == projects_count
     assert response.json()[0]["name"] == "project_1"
+
+
+@pytest.mark.order("last")
+@pytest.mark.parametrize("project_id", random.sample(range(1, N_PROJECTS + 1), 5))
+def test_delete_project(project_id, db):
+    assert db.query(models.Project).filter(models.Project.id == project_id).first()
+    response = client.delete(f"/projects/delete/{project_id}", headers=headers)
+    assert response.status_code == 200
+    assert not db.query(models.Project).filter(models.Project.id == project_id).first()
