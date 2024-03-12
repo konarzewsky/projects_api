@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from api.main import app
-from tests.data import INVALID_PROJECTS, VALID_PROJECTS
+from tests.data import INVALID_GEOJSON_PROJECTS, INVALID_PROJECTS, VALID_PROJECTS
 
 pytest_plugins = ["tests.fixtures"]
 
@@ -21,14 +21,24 @@ def test_root():
     assert response.json() == {"message": "Welcome to 'projects' API."}
 
 
+# TODO: add auth token test
+
+
 @pytest.mark.parametrize("project", VALID_PROJECTS)
-def test_create_valid_project(project):
+def test_create_project_valid(project):
     response = client.post("/create", json=project, headers=headers)
     assert response.status_code == 200
     assert response.json()["name"] == project["name"]
 
 
 @pytest.mark.parametrize("project", INVALID_PROJECTS)
-def test_create_invalid_project(project):
+def test_create_project_invalid(project):
     response = client.post("/create", json=project, headers=headers)
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize("project", INVALID_GEOJSON_PROJECTS)
+def test_create_project_invalid_geojson(project):
+    response = client.post("/create", json=project, headers=headers)
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == "Value error, Invalid geojson."

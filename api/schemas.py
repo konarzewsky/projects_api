@@ -2,12 +2,12 @@ import datetime
 from typing import Self
 
 from fastapi import HTTPException
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 import db.models as models
-from api.utils import prepare_logger
+from api.utils import prepare_logger, validate_geojson
 
 logger = prepare_logger()
 
@@ -17,13 +17,20 @@ class BaseProject(BaseModel):
     description: str | None = Field(default=None)
     date_start: datetime.date
     date_end: datetime.date
-    area: str  # TODO: https://gis.stackexchange.com/questions/468211/validate-geojson-geometries-using-geojson-python-package-via-fiona # noqa E501
+    area: dict
 
     @model_validator(mode="after")
     def check_dates_chronology(self) -> Self:
         if self.date_start > self.date_end:
             raise ValueError("date_start cannot be later than date_end")
         return self
+
+    @field_validator("area")
+    @classmethod
+    def check_geojson_structure(cls, v: dict) -> dict:
+        if not validate_geojson(v):
+            raise ValueError("Invalid geojson.")
+        return v
 
     def create(self, session: Session) -> models.Project:
         logger.info(f"Creating new project (name={self.name})")
