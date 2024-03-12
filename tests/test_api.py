@@ -46,16 +46,22 @@ def test_save_new_projects(db):
 
 
 @pytest.mark.parametrize("project", INVALID_PROJECTS)
-def test_create_project_invalid(project):
+def test_create_project_invalid(project, db):
+    count_before = db.query(models.Project).order_by(models.Project.created_at).count()
     response = client.post("/projects/create", json=project, headers=headers)
+    count_after = db.query(models.Project).order_by(models.Project.created_at).count()
     assert response.status_code == 422
+    assert count_before == count_after
 
 
 @pytest.mark.parametrize("project", INVALID_GEOJSON_PROJECTS)
-def test_create_project_invalid_geojson(project):
+def test_create_project_invalid_geojson(project, db):
+    count_before = db.query(models.Project).order_by(models.Project.created_at).count()
     response = client.post("/projects/create", json=project, headers=headers)
+    count_after = db.query(models.Project).order_by(models.Project.created_at).count()
     assert response.status_code == 422
     assert response.json()["detail"][0]["msg"] == "Value error, Invalid geojson."
+    assert count_before == count_after
 
 
 @pytest.mark.parametrize("project_id", random.sample(range(1, N_PROJECTS + 1), 5))
@@ -63,3 +69,22 @@ def test_read_existing_project(project_id):
     response = client.get(f"/projects/read/{project_id}", headers=headers)
     assert response.status_code == 200
     assert response.json()["name"] == f"project_{project_id}"
+
+
+@pytest.mark.parametrize(
+    "project_id", random.sample(range(N_PROJECTS + 1, N_PROJECTS + 20), 5)
+)
+def test_read_nonexistent_project(project_id):
+    response = client.get(f"/projects/read/{project_id}", headers=headers)
+    assert response.status_code == 400
+    assert response.json()["detail"] == f"Project with id={project_id} not found"
+
+
+def test_list_projects(db):
+    projects_count = (
+        db.query(models.Project).order_by(models.Project.created_at).count()
+    )
+    response = client.get("/projects/list", headers=headers)
+    assert response.status_code == 200
+    assert len(response.json()) == projects_count
+    assert response.json()[0]["name"] == "project_1"

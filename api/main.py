@@ -12,15 +12,16 @@ async def root():
     return {"message": "Welcome to 'projects' API."}
 
 
-@app.post("/projects/create")
-async def create_project(
-    project: BaseProject, session: Session = Depends(get_db_conn)
-) -> Project:
+@app.post("/projects/create", response_model=Project)
+async def create_project(project: BaseProject, session: Session = Depends(get_db_conn)):
     return project.create(session=session)
 
 
-@app.get("/projects/read/{project_id}")
-async def read_project(
-    project_id: int, session: Session = Depends(get_db_conn)
-) -> Project:
+@app.get("/projects/read/{project_id}", response_model=Project)
+async def read_project(project_id: int, session: Session = Depends(get_db_conn)):
     return Project.get(id=project_id, session=session)
+
+
+@app.get("/projects/list", response_model=list[Project])  # TODO: check return typing
+async def list_projects(session: Session = Depends(get_db_conn)):
+    return Project.get_all(session=session)

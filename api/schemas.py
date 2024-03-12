@@ -70,3 +70,8 @@ class Project(BaseProject):
                 status_code=400, detail=f"Project with id={id} not found"
             )
         return db_project
+
+    @staticmethod
+    def get_all(session: Session) -> list[models.Project]:
+        logger.info("Getting all projects")
+        return session.query(models.Project).order_by(models.Project.id).all()
