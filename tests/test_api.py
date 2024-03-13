@@ -99,3 +99,30 @@ def test_delete_project(project_id, db):
     response = client.delete(f"/projects/delete/{project_id}", headers=headers)
     assert response.status_code == 200
     assert not db.query(models.Project).filter(models.Project.id == project_id).first()
+
+
+@pytest.mark.parametrize("project_id", random.sample(range(1, N_PROJECTS + 1), 5))
+def test_update_existing_project(project_id, db):
+    response = client.patch(
+        f"/projects/update/{project_id}",
+        json={"name": f"project_{project_id}_updated"},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["name"] == f"project_{project_id}_updated"
+    db_project = (
+        db.query(models.Project).filter(models.Project.id == project_id).first()
+    )
+    assert db_project.name == f"project_{project_id}_updated"
+
+
+@pytest.mark.parametrize(
+    "project_id", random.sample(range(N_PROJECTS + 1, N_PROJECTS + 20), 5)
+)
+def test_update_nonexistent_project(project_id):
+    response = client.patch(
+        f"/projects/update/{project_id}",
+        json={"name": f"project_{project_id}_updated"},
+        headers=headers,
+    )
+    assert response.status_code == 404

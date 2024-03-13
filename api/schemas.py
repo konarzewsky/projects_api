@@ -21,6 +21,9 @@ class BaseProject(BaseModel):
 
     @model_validator(mode="after")
     def check_dates_chronology(self) -> Self:
+        today = datetime.date.today()
+        if self.date_start > today or self.date_start > today:
+            raise ValueError("date_start and date_end cannot be in the future")
         if self.date_start > self.date_end:
             raise ValueError("date_start cannot be later than date_end")
         return self
@@ -49,6 +52,46 @@ class BaseProject(BaseModel):
             raise HTTPException(status_code=400, detail=e)
         else:
             return project
+
+
+class ProjectUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=32)
+    description: str | None = Field(default=None)
+    date_start: datetime.date | None = None
+    date_end: datetime.date | None = None
+    area: dict | None = None
+
+    @model_validator(mode="after")
+    def check_dates_chronology(self) -> Self:
+        today = datetime.date.today()
+        for date in [self.date_start, self.date_end]:
+            if date:
+                if date > today:
+                    raise ValueError("date cannot be in the future")
+        if self.date_start and self.date_end:
+            if self.date_start > self.date_end:
+                raise ValueError("date_start cannot be later than date_end")
+        return self
+
+    @field_validator("area")
+    @classmethod
+    def check_geojson_structure(cls, v: dict) -> dict:
+        if v:
+            if not validate_geojson(v):
+                raise ValueError("Invalid geojson.")
+        return v
+
+    def update(self, id: int, session: Session) -> models.Project:
+        logger.info(f"Updating project (id={id})")
+        db_project = session.query(models.Project).filter_by(id=id).first()
+        if not db_project:
+            raise HTTPException(status_code=404, detail=f"Project (id={id}) not found")
+        for k, v in self.model_dump(exclude_unset=True).items():
+            setattr(db_project, k, v)
+        session.add(db_project)
+        session.commit()
+        session.refresh(db_project)
+        return db_project
 
 
 class Project(BaseProject):
