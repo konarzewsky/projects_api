@@ -25,7 +25,7 @@ jobs:
         run: docker-compose build projects_api
       
       - name: Run database for tests
-        run: docker-compose up -d db
+        run: docker-compose up -d db_test
 
       - name: Check the code
         run: docker-compose run --rm projects_api bash lint.sh

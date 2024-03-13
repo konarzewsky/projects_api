@@ -12,19 +12,32 @@ services:
     ports:
       - 5000:5000
     depends_on:
-      - db
+      - db_dev
 
-  db:
-    image: postgis/postgis
+  db_dev:
+    image: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=defaultdb
+      - POSTGRES_DB=devdb
     ports:
       - 5432:5432
     volumes: 
-      - pgdata:/var/lib/postgresql/data
+      - pgdata_dev:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  
+  db_test:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=testdb
+    ports:
+      - 5433:5432
+    volumes: 
+      - pgdata_test:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
-  pgdata:
+  pgdata_dev:
+  pgdata_test:

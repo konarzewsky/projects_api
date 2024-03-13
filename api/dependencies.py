@@ -14,7 +14,7 @@ async def get_db_conn():
         db.close()
 
 
-async def verify_auth_token(request: Request, token_header: str = "X-API-KEY"):
+async def verify_auth_token(request: Request, token_header: str = "Auth-Token"):
     if not request.headers.get(token_header):
         raise HTTPException(
             status_code=400, detail=f"{token_header} header not provided"

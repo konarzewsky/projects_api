@@ -100,6 +100,9 @@ def validate_position(position: Any) -> bool:
 
 
 def validate_positions_array(positions: Any) -> bool:
+    """
+    Validates array of positions
+    """
     if not isinstance(positions, list):
         return False
     if not all([validate_position(position) for position in positions]):

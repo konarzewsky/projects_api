@@ -30,10 +30,10 @@ class BaseProject(BaseModel):
 
     @field_validator("area")
     @classmethod
-    def check_geojson_structure(cls, v: dict) -> dict:
-        if not validate_geojson(v):
+    def check_geojson_structure(cls, area: dict) -> dict:
+        if not validate_geojson(area):
             raise ValueError("Invalid geojson.")
-        return v
+        return area
 
     def create(self, session: Session) -> models.Project:
         logger.info(f"Creating new project (name={self.name})")
@@ -55,6 +55,10 @@ class BaseProject(BaseModel):
 
 
 class ProjectUpdate(BaseModel):
+    """
+    All fields are optional here to allow updating only chosen fields
+    """
+
     name: str | None = Field(default=None, min_length=1, max_length=32)
     description: str | None = Field(default=None)
     date_start: datetime.date | None = None
@@ -75,11 +79,11 @@ class ProjectUpdate(BaseModel):
 
     @field_validator("area")
     @classmethod
-    def check_geojson_structure(cls, v: dict) -> dict:
-        if v:
-            if not validate_geojson(v):
+    def check_geojson_structure(cls, area: dict) -> dict:
+        if area:
+            if not validate_geojson(area):
                 raise ValueError("Invalid geojson.")
-        return v
+        return area
 
     def update(self, id: int, session: Session) -> models.Project:
         logger.info(f"Updating project (id={id})")

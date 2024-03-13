@@ -3,4 +3,4 @@
 set -xe
 
 bin/run bash lint.sh
-bin/run python -m pytest -vs
+bin/tests

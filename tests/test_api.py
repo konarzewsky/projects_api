@@ -20,7 +20,7 @@ client = TestClient(app)
 
 headers = {
     "Content-Type": "application/json;charset=UTF-8",
-    "X-API-KEY": API_AUTH_TOKEN,
+    "Auth-Token": API_AUTH_TOKEN,
 }
 
 
@@ -33,13 +33,13 @@ def test_root():
 def test_unauthorized_request():
     response = client.get("/projects/")
     assert response.status_code == 400
-    assert response.json()["detail"] == "X-API-KEY header not provided"
+    assert response.json()["detail"] == "Auth-Token header not provided"
 
 
 def test_invalid_auth_token():
-    response = client.get("/projects/", headers={"X-API-KEY": "Invalid-token"})
+    response = client.get("/projects/", headers={"Auth-Token": "Invalid-token"})
     assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid X-API-KEY"
+    assert response.json()["detail"] == "Invalid Auth-Token"
 
 
 @pytest.mark.order("first")

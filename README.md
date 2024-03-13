@@ -25,9 +25,9 @@ docker-compose build projects_api
 
 5. Run application
 ```
-docker-compose up
+docker-compose up projects_api
 ```
-This command starts two services: **db** and **projects_api**. First launch of the **db** service creates an empty postgres database and creates the "projects" table.
+This command starts two services: **db** and **projects_api**. First launch of the **db_dev** service creates an empty postgres database and creates the "projects" table.
 
 ## Endpoints
 
@@ -35,7 +35,7 @@ This command starts two services: **db** and **projects_api**. First launch of t
 
 Example request:
 ```
-curl -X POST -H "X-API-KEY: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" -d '{"name": "my_project","description": "my project description","date_start": "2024-01-01","date_end": "2024-01-31","area": {"type": "Feature","geometry": {"type": "Point","coordinates": [125.6, 10.1]}}}' http://0.0.0.0:5000/projects/create
+curl -X POST -H "Auth-Token: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" -d '{"name": "my_project","description": "my project description","date_start": "2024-01-01","date_end": "2024-01-31","area": {"type": "Feature","geometry": {"type": "Point","coordinates": [125.6, 10.1]}}}' http://0.0.0.0:5000/projects/create
 ```
 Example response:
 ```
@@ -55,7 +55,7 @@ Example response:
 
 Example request:
 ```
-curl -X GET -H "X-API-KEY: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" http://0.0.0.0:5000/projects/read/1
+curl -X GET -H "Auth-Token: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" http://0.0.0.0:5000/projects/read/1
 ```
 Example response:
 ```
@@ -75,7 +75,7 @@ Example response:
 
 Example request:
 ```
-curl -X GET -H "X-API-KEY: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" http://0.0.0.0:5000/projects/list
+curl -X GET -H "Auth-Token: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" http://0.0.0.0:5000/projects/list
 ```
 Example response:
 ```
@@ -107,7 +107,7 @@ Example response:
 
 Example request:
 ```
-curl -X DELETE -H "X-API-KEY: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" http://0.0.0.0:5000/projects/delete/1
+curl -X DELETE -H "Auth-Token: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" http://0.0.0.0:5000/projects/delete/1
 ```
 Example response:
 ```
@@ -120,7 +120,7 @@ Example response:
 
 Example request:
 ```
-curl -X PATCH -H "X-API-KEY: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" -d '{"name": "updated_project_2"}' http://0.0.0.0:5000/projects/update/2
+curl -X PATCH -H "Auth-Token: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" -d '{"name": "updated_project_2"}' http://0.0.0.0:5000/projects/update/2
 ```
 Example response:
 ```
@@ -140,5 +140,5 @@ Example response:
 
 - Sample requests can be made using files in ```/requests``` dir (e.g. ```bash requests/create_invalid.sh```)
 - Check code ```bash lint.sh```
-- Run tests ```bin/run pytest -vs```
+- Run tests ```bin/tests```
 - Before pushing changes to remote ```bin/pre-push```
