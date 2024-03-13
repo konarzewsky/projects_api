@@ -11,6 +11,7 @@ Author: Wojciech Konarzewski
 2. Clone this repository
 ```
 git clone https://github.com/konarzewsky/projects_api.git
+cd projects_api/
 ```
 
 3. Prepare environment
