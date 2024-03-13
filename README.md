@@ -28,7 +28,7 @@ docker-compose build projects_api
 ```
 docker-compose up projects_api
 ```
-This command starts two services: **db** and **projects_api**. First launch of the **db_dev** service creates an empty postgres database and creates the "projects" table.
+This command starts two services: **db_dev** and **projects_api**. First launch of the **db_dev** service creates an empty postgres database and creates the "projects" table.
 
 ## Endpoints
 
