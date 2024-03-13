@@ -1,10 +1,10 @@
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
-from api.dependencies import get_db_conn
+from api.dependencies import get_db_conn, verify_auth_token
 from api.schemas import BaseProject, Project, ProjectUpdate
 
-app = FastAPI()
+app = FastAPI(dependencies=[Depends(verify_auth_token)])
 
 
 @app.get("/projects")

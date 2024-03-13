@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 import db.models as models
 from api.main import app
+from config.env import API_AUTH_TOKEN
 from tests.data import (
     INVALID_GEOJSON_PROJECTS,
     INVALID_PROJECTS,
@@ -19,17 +20,26 @@ client = TestClient(app)
 
 headers = {
     "Content-Type": "application/json;charset=UTF-8",
-    # "X-API-KEY": API_AUTH_TOKEN,
+    "X-API-KEY": API_AUTH_TOKEN,
 }
 
 
 def test_root():
-    response = client.get("/projects/")
+    response = client.get("/projects/", headers=headers)
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to 'projects' API."}
 
 
-# TODO: add auth token test
+def test_unauthorized_request():
+    response = client.get("/projects/")
+    assert response.status_code == 400
+    assert response.json()["detail"] == "X-API-KEY header not provided"
+
+
+def test_invalid_auth_token():
+    response = client.get("/projects/", headers={"X-API-KEY": "Invalid-token"})
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid X-API-KEY"
 
 
 @pytest.mark.order("first")
