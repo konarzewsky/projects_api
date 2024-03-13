@@ -34,6 +34,14 @@ This command starts two services: **db** and **projects_api**. First launch of t
 
 - POST ```/projects/create``` (creates new project)
 
+Request body:
+```
+name: project name (required, up to 32 characters)
+description: project description (optional)
+date_start: project start date (required, YYYY-MM-DD format)
+date_end: project end date (required, YYYY-MM-DD format)
+area: project area representation (required, geojson)
+```
 Example request:
 ```
 curl -X POST -H "Auth-Token: SECRET_API_KEY" -H "Content-Type: application/json;charset=UTF-8" -d '{"name": "my_project","description": "my project description","date_start": "2024-01-01","date_end": "2024-01-31","area": {"type": "Feature","geometry": {"type": "Point","coordinates": [125.6, 10.1]}}}' http://0.0.0.0:5000/projects/create
